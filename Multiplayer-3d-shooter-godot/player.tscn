@@ -1,8 +1,11 @@
-[gd_scene load_steps=4 format=3 uid="uid://cs46j3e8haq55"]
+[gd_scene load_steps=10 format=3 uid="uid://cs46j3e8haq55"]
+
+[ext_resource type="PackedScene" uid="uid://n7ciodjxvo8t" path="res://pistola.blend" id="1_wn43v"]
 
 [sub_resource type="GDScript" id="GDScript_unxjj"]
 script/source = "extends CharacterBody3D
 @onready var camera = $Camera3D
+@onready var animPlayer=$AnimationPlayer
 
 const SPEED = 5.0 #10
 const JUMP_VELOCITY = 4.5 #10
@@ -18,6 +21,12 @@ func _unhandled_input(event):
 		rotate_y(-event.relative.x*0.005)
 		camera.rotate_x(-event.relative.y*0.005)
 		camera.rotation.x=clamp(camera.rotation.x,-PI/2,PI/2)
+	
+	if Input.is_action_just_pressed(\"shoot\") \\
+		and animPlayer.current_animation!=\"shoot\":
+		play_shoot_effects()
+		
+		
 
 func _physics_process(delta):
 	# Add the gravity.
@@ -38,13 +47,133 @@ func _physics_process(delta):
 	else:
 		velocity.x = move_toward(velocity.x, 0, SPEED)
 		velocity.z = move_toward(velocity.z, 0, SPEED)
+		
+	if animPlayer.current_animation == 'shoot':
+		pass
+	elif input_dir!=Vector2.ZERO and is_on_floor():
+		animPlayer.play(\"move\")
+	else:
+		animPlayer.play(\"idle\")
 
 	move_and_slide()
+	
+func play_shoot_effects():
+	animPlayer.stop()
+	animPlayer.play('shoot')
 "
 
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_ntvwj"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_4cshj"]
+
+[sub_resource type="Animation" id="Animation_jyv6a"]
+resource_name = "idle"
+length = 3.0
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Camera3D/pistola:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 1.4),
+"transitions": PackedFloat32Array(-2, -2),
+"update": 0,
+"values": [Vector3(0.329252, -0.25, -0.5), Vector3(0.329252, -0.268762, -0.5)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Camera3D/pistola:rotation")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 1.4),
+"transitions": PackedFloat32Array(-2, -2),
+"update": 0,
+"values": [Vector3(0, 1.5708, 0), Vector3(6.06456e-09, 1.5708, -0.13919)]
+}
+
+[sub_resource type="Animation" id="Animation_665e4"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Camera3D/pistola:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0.329252, -0.25, -0.5)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Camera3D/pistola:rotation")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0, 1.5708, 0)]
+}
+
+[sub_resource type="Animation" id="Animation_wh4l3"]
+resource_name = "move"
+loop_mode = 1
+step = 0.25
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Camera3D/pistola:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.25, 0.5, 0.75),
+"transitions": PackedFloat32Array(0.5, 2, 0.5, 2),
+"update": 0,
+"values": [Vector3(0.329252, -0.25, -0.5), Vector3(0.272726, -0.218941, -0.5), Vector3(0.329252, -0.25, -0.5), Vector3(0.366687, -0.229061, -0.5)]
+}
+
+[sub_resource type="Animation" id="Animation_wvp6s"]
+resource_name = "shoot"
+length = 0.4
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Camera3D/pistola:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.4),
+"transitions": PackedFloat32Array(0.5, 1),
+"update": 0,
+"values": [Vector3(0.327661, -0.247586, -0.485126), Vector3(0.329252, -0.26187, -0.5)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Camera3D/pistola:rotation")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.4),
+"transitions": PackedFloat32Array(0.5, 1),
+"update": 0,
+"values": [Vector3(-1.00488e-08, 1.5708, 0.230551), Vector3(3.83676e-09, 1.5708, -0.088059)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_t6767"]
+_data = {
+"RESET": SubResource("Animation_665e4"),
+"idle": SubResource("Animation_jyv6a"),
+"move": SubResource("Animation_wh4l3"),
+"shoot": SubResource("Animation_wvp6s")
+}
 
 [node name="Player" type="CharacterBody3D"]
 script = SubResource("GDScript_unxjj")
@@ -59,3 +188,13 @@ shape = SubResource("CapsuleShape3D_4cshj")
 
 [node name="Camera3D" type="Camera3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.48586, 0)
+
+[node name="pistola" parent="Camera3D" instance=ExtResource("1_wn43v")]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0.329252, -0.25, -0.5)
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+autoplay = "idle"
+playback_default_blend_time = 0.05
+libraries = {
+"": SubResource("AnimationLibrary_t6767")
+}
