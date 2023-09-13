@@ -261,6 +261,7 @@ emitting = false
 amount = 1
 lifetime = 0.25
 one_shot = true
+local_coords = true
 process_material = SubResource("ParticleProcessMaterial_wpw2m")
 draw_pass_1 = SubResource("PlaneMesh_wgnhf")
 
